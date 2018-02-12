@@ -13,12 +13,14 @@ if __name__ == "__main__":
         total_rpms = 0
         total_engine_load = 0
         total_high_rpms = 0
+        total_speed = 0
 
         i = 0
         ri = 0
         rpm_i = 0
         el_i = 0
         rpm_high_i = 0
+        speed_i = 0
 
         for row in reader:
 
@@ -52,11 +54,15 @@ if __name__ == "__main__":
                     if int(row[4]) > 3500:
                         total_high_rpms += int(row[4])
                         rpm_high_i += 1
+
+                    # Measure average speed (HIGHLY inaccurate, since it counts my time idling at warmup)
+                    total_speed += int(row[3])
+                    speed_i += 1
                     
             last_row = row
             i += 1
 
         print "Total rows: {}\nTotal Time Recorded: {}\nAverage Sample Rate: {}".format(
                 ri, total_time, total_time / ri)
-        print "Average RPMs: {}\nAverage Engine Load: {}\nAverage High RPM (>3500): {}".format(
-                total_rpms / rpm_i, total_engine_load / el_i, total_high_rpms / rpm_high_i)
+        print "Average RPMs: {}\nAverage Speed: {}mph\nAverage Engine Load: {}\nAverage High RPM (>3500): {}".format(
+                total_rpms / rpm_i, total_speed / speed_i, total_engine_load / el_i, total_high_rpms / rpm_high_i)
