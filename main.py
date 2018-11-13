@@ -107,7 +107,7 @@ def setup_obd(waittime):
     time.sleep(waittime)
 
     try:
-        conn = obd.OBD() # auto-connects to USB or RF port
+        conn = obd.OBD("/dev/rfcomm0") # force connect to RF port
         return conn
 
     except:
