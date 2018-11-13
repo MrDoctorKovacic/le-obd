@@ -109,6 +109,7 @@ def setup_obd(waittime):
         setup_obd(waittime)
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
     logging.debug("Starting OBD Connection...")
 
     if len(sys.argv) >= 4:
