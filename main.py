@@ -36,6 +36,10 @@ def get_obd_value(command):
 
 def begin_logging(mysql_user, mysql_pass, mysql_db):
 
+    # Break if the connection has dropped
+    if not OBD_CONNECTION:
+        return
+
     # TODO: Assume this will fail
     db = MySQLdb.connect("localhost", mysql_user, mysql_pass, mysql_db)
     curs = db.cursor()
