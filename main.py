@@ -53,7 +53,7 @@ def begin_logging(mysql_user, mysql_pass, mysql_db):
         MAF = get_obd_value(obd.commands.MAF)
 
         write_db = True
-        if(MAF == 0 and engine_load == 0 and speed == 0 and rpm == 0):
+        if(not MAF and not engine_load and not speed and not rpm):
             write_db = False
 
         if(extra_i >= 200):
@@ -114,6 +114,6 @@ if __name__ == "__main__":
         connection = setup_obd(0)
         logging.debug("OBD Connection Successful")
         logging.debug("Starting OBD Logging...")
-        
+
     else:
         print("Provide mysql username, password, and database")
