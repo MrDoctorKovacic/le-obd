@@ -9,10 +9,11 @@ import MySQLdb
 import time
 import sys
 import datetime
+import logging
 
 def end_logging():
     """ Called to safely shutdown """
-    print "Ending logging"
+    logging.debug("Ending logging")
     sys.exit(0) # for now just die
 
 def get_obd_value(command):
@@ -24,16 +25,16 @@ def get_obd_value(command):
             return result.magnitude
 
     except Exception as e:
-        # TODO: Better error handling
-        print "[ERROR] During get_obd_value the following exception occured:"
-        print e.message
-        print "[ERROR] Returning 0.1 and continuing..."
+        # TODO: Better error handling, catch OBD exception
+        logging.debug("[ERROR] During get_obd_value the following exception occured:")
+        logging.debug(e.message)
+        logging.debug("[ERROR] Returning 0.1 and continuing...")
         return 0.1
 
-def begin_logging():
+def begin_logging(mysql_user, mysql_pass, mysql_db):
 
     # TODO: Assume this will fail
-    db = MySQLdb.connect("localhost", "ellie", "ellie4815162342", "LE")
+    db = MySQLdb.connect("localhost", mysql_user, mysql_pass, mysql_db)
     curs = db.cursor()
 
     # init to 200 first, to get starting MAF and intake temp more frequently
@@ -51,6 +52,10 @@ def begin_logging():
         # get MAF
         MAF = get_obd_value(obd.commands.MAF)
 
+        write_db = True
+        if(MAF == 0 and engine_load == 0 and speed == 0 and rpm == 0):
+            write_db = False
+
         if(extra_i >= 200):
             # Get coolant and intake temp less frequently than the others
             extra_i = 0
@@ -61,27 +66,29 @@ def begin_logging():
             # get intake temp
             intake_temp = get_obd_value(obd.commands.INTAKE_TEMP)
 
-            with db:
-                now = datetime.datetime.now()
-                
-                # With all that data, insert into MySQL
-                curs.execute("""INSERT INTO log_obd
-                    (time, time_micro, speed, rpm, engine_load, coolant_temp, intake_temp, MAF)
-                    values (%s, %s, %s, %s, %s, %s, %s, %s)
-                    """, (str(now.strftime("%Y-%m-%d %H:%M:%S")), str(now.microsecond), str(speed), str(rpm), str(engine_load), str(coolant_temp), str(intake_temp), str(MAF)))
-                db.commit()
+            if write_db:
+                with db:
+                    now = datetime.datetime.now()
+                    
+                    # With all that data, insert into MySQL
+                    curs.execute("""INSERT INTO log_obd
+                        (time, time_micro, speed, rpm, engine_load, coolant_temp, intake_temp, MAF)
+                        values (%s, %s, %s, %s, %s, %s, %s, %s)
+                        """, (str(now.strftime("%Y-%m-%d %H:%M:%S")), str(now.microsecond), str(speed), str(rpm), str(engine_load), str(coolant_temp), str(intake_temp), str(MAF)))
+                    db.commit()
 
         else:
             extra_i += 1
-            with db:
-                now = datetime.datetime.now()
+            if write_db:
+                with db:
+                    now = datetime.datetime.now()
 
-                # With all that data, insert into MySQL
-                curs.execute("""INSERT INTO log_obd
-                    (time, time_micro, speed, rpm, engine_load, MAF)
-                    values (%s, %s, %s, %s, %s, %s)
-                    """, (str(now.strftime("%Y-%m-%d %H:%M:%S")), str(now.microsecond), str(speed), str(rpm), str(engine_load), str(MAF)))
-                db.commit()
+                    # With all that data, insert into MySQL
+                    curs.execute("""INSERT INTO log_obd
+                        (time, time_micro, speed, rpm, engine_load, MAF)
+                        values (%s, %s, %s, %s, %s, %s)
+                        """, (str(now.strftime("%Y-%m-%d %H:%M:%S")), str(now.microsecond), str(speed), str(rpm), str(engine_load), str(MAF)))
+                    db.commit()
 
 def setup_obd(waittime):
     if waittime >= 120:
@@ -96,13 +103,16 @@ def setup_obd(waittime):
 
     except:
         waittime += 15
-        print "Failed to connect to OBD. Retrying in %d seconds." % waittime
+        logging.debug("Failed to connect to OBD. Retrying in %d seconds." % waittime)
         setup_obd(waittime)
 
 if __name__ == "__main__":
-    print "Starting OBD Connection..."
+    logging.debug("Starting OBD Connection...")
     connection = setup_obd(0)
-    print "OBD Connection Successful"
+    logging.debug("OBD Connection Successful")
 
-    print "Starting OBD Logging..."
-    begin_logging()
+    logging.debug("Starting OBD Logging...")
+    if len(sys.argv) >= 4:
+        begin_logging(sys.argv[1], sys.argv[2], sys.argv[3])
+    else:
+        print("Provide mysql username, password, and database")
