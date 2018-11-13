@@ -108,11 +108,12 @@ def setup_obd(waittime):
 
 if __name__ == "__main__":
     logging.debug("Starting OBD Connection...")
-    connection = setup_obd(0)
-    logging.debug("OBD Connection Successful")
 
-    logging.debug("Starting OBD Logging...")
     if len(sys.argv) >= 4:
         begin_logging(sys.argv[1], sys.argv[2], sys.argv[3])
+        connection = setup_obd(0)
+        logging.debug("OBD Connection Successful")
+        logging.debug("Starting OBD Logging...")
+        
     else:
         print("Provide mysql username, password, and database")
