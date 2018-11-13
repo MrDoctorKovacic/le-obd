@@ -11,6 +11,9 @@ import sys
 import datetime
 import logging
 
+# Global OBD Connection
+OBD_CONNECTION = None
+
 def end_logging():
     """ Called to safely shutdown """
     logging.debug("Ending logging")
@@ -18,7 +21,7 @@ def end_logging():
 
 def get_obd_value(command):
     try:
-        result = connection.query(command).value 
+        result = OBD_CONNECTION.query(command).value 
         if result is None:
             return 0.1 
         else:
@@ -114,7 +117,7 @@ if __name__ == "__main__":
 
     if len(sys.argv) >= 4:
         begin_logging(sys.argv[1], sys.argv[2], sys.argv[3])
-        connection = setup_obd(0)
+        OBD_CONNECTION = setup_obd(0)
         logging.debug("OBD Connection Successful")
         logging.debug("Starting OBD Logging...")
 
