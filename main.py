@@ -27,7 +27,7 @@ def get_obd_value(command):
     except Exception as e:
         # TODO: Better error handling, catch OBD exception
         logging.debug("[ERROR] During get_obd_value the following exception occured:")
-        logging.debug(e.message)
+        logging.debug(e)
         logging.debug("[ERROR] Returning 0.1 and continuing...")
         return 0.1
 
@@ -53,10 +53,10 @@ def begin_logging(mysql_user, mysql_pass, mysql_db):
         MAF = get_obd_value(obd.commands.MAF)
 
         write_db = True
-        if(not MAF and not engine_load and not speed and not rpm):
+        if(MAF == 0.1 and engine_load == 0.1 and speed == 0.1 and rpm == 0.1):
             write_db = False
 
-        logging.debug("MAF: {}, ENGINE_LOAD: {}, SPEED: {}, RPM: {}".format(MAF, engine_load, speed, rpm))
+        #logging.debug("MAF: {}, ENGINE_LOAD: {}, SPEED: {}, RPM: {}".format(MAF, engine_load, speed, rpm))
 
         if(extra_i >= 200):
             # Get coolant and intake temp less frequently than the others
