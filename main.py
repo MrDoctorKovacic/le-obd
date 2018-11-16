@@ -63,7 +63,7 @@ def begin_logging(mysql_user, mysql_pass, mysql_db):
 		if(MAF == 0.1 and engine_load == 0.1 and speed == 0.1 and rpm == 0.1):
 			write_db = False
 
-		#logging.debug("MAF: {}, ENGINE_LOAD: {}, SPEED: {}, RPM: {}".format(MAF, engine_load, speed, rpm))
+		logging.debug("MAF: {}, ENGINE_LOAD: {}, SPEED: {}, RPM: {}".format(MAF, engine_load, speed, rpm))
 
 		if(extra_i >= 200):
 			# Get coolant and intake temp less frequently than the others
