@@ -60,7 +60,7 @@ def begin_logging(mysql_user, mysql_pass, mysql_db):
 		MAF = get_obd_value(obd.commands.MAF)
 
 		write_db = True
-		if(MAF == 0.1 and engine_load == 0.1 and speed == 0.1 and rpm == 0.1):
+		if(MAF == 0.1 and engine_load == 0.1 and speed == 0.1 and rpm == 0.1 or MAF == 0 and engine_load == 0 and speed == 0 and rpm == 0):
 			write_db = False
 
 		logging.debug("MAF: {}, ENGINE_LOAD: {}, SPEED: {}, RPM: {}".format(MAF, engine_load, speed, rpm))
